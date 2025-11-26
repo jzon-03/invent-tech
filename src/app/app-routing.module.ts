@@ -6,6 +6,9 @@ import { InventoryComponent } from './components/inventory/inventory.component';
 import { CategoriesComponent } from './components/categories/categories.component';
 import { SuppliersComponent } from './components/suppliers/suppliers.component';
 import { OrdersComponent } from './components/orders/orders.component';
+import { StockMovementComponent } from './components/stock-movement/stock-movement.component';
+import { ReportsComponent } from './components/reports/reports.component';
+import { LowStockAlertComponent } from './components/low-stock-alert/low-stock-alert.component';
 
 const routes: Routes = [
   {
@@ -18,9 +21,9 @@ const routes: Routes = [
       { path: 'categories', component: CategoriesComponent },
       { path: 'suppliers', component: SuppliersComponent },
       { path: 'orders', component: OrdersComponent },
-      { path: 'stock-movement', component: DashboardComponent }, // Placeholder for now
-      { path: 'reports', component: DashboardComponent }, // Placeholder for now
-      { path: 'low-stock', component: DashboardComponent } // Placeholder for now
+      { path: 'stock-movement', component: StockMovementComponent },
+      { path: 'reports', component: ReportsComponent },
+      { path: 'low-stock', component: LowStockAlertComponent }
     ]
   }
 ];

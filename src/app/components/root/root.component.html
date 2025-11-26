@@ -57,7 +57,7 @@
         
         <!-- Orders -->
         <a mat-list-item routerLink="/orders" routerLinkActive="active">
-          <mat-icon matListItemIcon>shopping_cart</mat-icon>
+          <mat-icon matListItemIcon>receipt_long</mat-icon>
           <span matListItemTitle>Orders</span>
         </a>
         
@@ -73,15 +73,10 @@
           <span matListItemTitle>Reports</span>
         </a>
         
-        <mat-divider></mat-divider>
-        
-        <!-- Low Stock Alert -->
+        <!-- Low Stock Alerts -->
         <a mat-list-item routerLink="/low-stock" routerLinkActive="active">
-          <mat-icon matListItemIcon color="warn">warning</mat-icon>
-          <span matListItemTitle>Low Stock Alert</span>
-          <mat-chip-set>
-            <mat-chip color="warn">5</mat-chip>
-          </mat-chip-set>
+          <mat-icon matListItemIcon>warning</mat-icon>
+          <span matListItemTitle>Low Stock Alerts</span>
         </a>
       </mat-nav-list>
     </mat-sidenav>

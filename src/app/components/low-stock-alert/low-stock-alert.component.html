@@ -1,0 +1,507 @@
+<div class="low-stock-container">
+  <!-- Header Section -->
+  <div class="header">
+    <div class="header-title">
+      <h1>Low Stock Alerts</h1>
+      <p>Monitor and manage inventory items below minimum thresholds</p>
+    </div>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="createPurchaseOrder()">
+        <mat-icon>add_shopping_cart</mat-icon>
+        Create PO
+      </button>
+      <button mat-stroked-button (click)="updateThresholds()">
+        <mat-icon>tune</mat-icon>
+        Update Thresholds
+      </button>
+      <button mat-button [matMenuTriggerFor]="moreMenu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #moreMenu="matMenu">
+        <button mat-menu-item (click)="exportAlerts()">
+          <mat-icon>file_download</mat-icon>
+          Export Alerts
+        </button>
+        <button mat-menu-item (click)="bulkOrder()">
+          <mat-icon>shopping_cart</mat-icon>
+          Bulk Order
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="configureAlerts()">
+          <mat-icon>settings</mat-icon>
+          Alert Settings
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <!-- Alert Summary Cards -->
+  <div class="summary-cards">
+    <mat-card class="summary-card critical">
+      <mat-card-header>
+        <div class="card-icon critical-icon">
+          <mat-icon>error</mat-icon>
+        </div>
+        <div class="card-content">
+          <mat-card-title>Critical Stock</mat-card-title>
+          <mat-card-subtitle>0 - 5 units remaining</mat-card-subtitle>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="summary-value">{{ getCriticalStockCount() }}</div>
+        <div class="summary-details">
+          <span class="detail-item">
+            <mat-icon>attach_money</mat-icon>
+            {{ getCriticalStockValue() | currency }} value
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    
+    <mat-card class="summary-card low">
+      <mat-card-header>
+        <div class="card-icon low-icon">
+          <mat-icon>warning</mat-icon>
+        </div>
+        <div class="card-content">
+          <mat-card-title>Low Stock</mat-card-title>
+          <mat-card-subtitle>6 - 20 units remaining</mat-card-subtitle>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="summary-value">{{ getLowStockCount() }}</div>
+        <div class="summary-details">
+          <span class="detail-item">
+            <mat-icon>attach_money</mat-icon>
+            {{ getLowStockValue() | currency }} value
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    
+    <mat-card class="summary-card reorder">
+      <mat-card-header>
+        <div class="card-icon reorder-icon">
+          <mat-icon>shopping_cart</mat-icon>
+        </div>
+        <div class="card-content">
+          <mat-card-title>Reorder Point</mat-card-title>
+          <mat-card-subtitle>Items needing reorder</mat-card-subtitle>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="summary-value">{{ getReorderCount() }}</div>
+        <div class="summary-details">
+          <span class="detail-item">
+            <mat-icon>schedule</mat-icon>
+            {{ getPendingOrdersCount() }} pending orders
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    
+    <mat-card class="summary-card outofstock">
+      <mat-card-header>
+        <div class="card-icon outofstock-icon">
+          <mat-icon>remove_shopping_cart</mat-icon>
+        </div>
+        <div class="card-content">
+          <mat-card-title>Out of Stock</mat-card-title>
+          <mat-card-subtitle>Zero inventory items</mat-card-subtitle>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="summary-value">{{ getOutOfStockCount() }}</div>
+        <div class="summary-details">
+          <span class="detail-item">
+            <mat-icon>trending_down</mat-icon>
+            {{ getStockoutDays() }} avg days stockout
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <h3>Quick Actions</h3>
+    <div class="action-chips">
+      <mat-chip-listbox [(ngModel)]="selectedSeverity" (change)="applyFilter()">
+        <mat-chip-option value="" class="filter-chip all">
+          <mat-icon>list</mat-icon>
+          All Items ({{ getAllItemsCount() }})
+        </mat-chip-option>
+        <mat-chip-option value="out-of-stock" class="filter-chip critical">
+          <mat-icon>remove_shopping_cart</mat-icon>
+          Out of Stock ({{ getOutOfStockCount() }})
+        </mat-chip-option>
+        <mat-chip-option value="critical" class="filter-chip critical">
+          <mat-icon>error</mat-icon>
+          Critical ({{ getCriticalStockCount() }})
+        </mat-chip-option>
+        <mat-chip-option value="low" class="filter-chip warning">
+          <mat-icon>warning</mat-icon>
+          Low Stock ({{ getLowStockCount() }})
+        </mat-chip-option>
+        <mat-chip-option value="reorder" class="filter-chip info">
+          <mat-icon>shopping_cart</mat-icon>
+          Reorder ({{ getReorderCount() }})
+        </mat-chip-option>
+      </mat-chip-listbox>
+    </div>
+  </div>
+
+  <!-- Search and Filters -->
+  <mat-card class="search-filters">
+    <mat-card-content>
+      <div class="filter-row">
+        <mat-form-field class="search-field" appearance="outline">
+          <mat-label>Search items...</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput
+                 [(ngModel)]="searchTerm"
+                 (ngModelChange)="applyFilter()"
+                 placeholder="Search by name, SKU, or category...">
+          <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="clearSearch()">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Category</mat-label>
+          <mat-select [(ngModel)]="categoryFilter" (ngModelChange)="applyFilter()">
+            <mat-option value="">All Categories</mat-option>
+            <mat-option *ngFor="let category of getUniqueCategories()" [value]="category">
+              {{ category }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Location</mat-label>
+          <mat-select [(ngModel)]="locationFilter" (ngModelChange)="applyFilter()">
+            <mat-option value="">All Locations</mat-option>
+            <mat-option *ngFor="let location of getUniqueLocations()" [value]="location">
+              {{ location }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <button mat-stroked-button (click)="clearFilters()">
+          <mat-icon>clear_all</mat-icon>
+          Clear
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- View Controls -->
+  <div class="view-controls">
+    <div class="results-info">
+      <span>{{ getFilteredItems().length }} of {{ lowStockItems.length }} items</span>
+    </div>
+    <div class="view-actions">
+      <mat-button-toggle-group [(ngModel)]="viewMode" class="view-toggle">
+        <mat-button-toggle value="cards">
+          <mat-icon>view_module</mat-icon>
+          Cards
+        </mat-button-toggle>
+        <mat-button-toggle value="table">
+          <mat-icon>table_rows</mat-icon>
+          Table
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+      
+      <div class="bulk-actions" *ngIf="selection.selected.length > 0">
+        <span class="selection-count">{{ selection.selected.length }} selected</span>
+        <button mat-stroked-button (click)="bulkCreateOrder()">
+          <mat-icon>add_shopping_cart</mat-icon>
+          Create Orders
+        </button>
+        <button mat-stroked-button (click)="bulkUpdateThreshold()">
+          <mat-icon>tune</mat-icon>
+          Update Thresholds
+        </button>
+        <button mat-button (click)="selection.clear()">
+          <mat-icon>clear</mat-icon>
+          Clear
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards View -->
+  <div *ngIf="viewMode === 'cards'" class="cards-container">
+    <div class="items-grid">
+      <mat-card *ngFor="let item of getFilteredItems()" 
+                class="item-card" 
+                [class]="getItemCardClass(item)">
+        <mat-card-header>
+          <div class="item-checkbox">
+            <mat-checkbox 
+              [checked]="selection.isSelected(item)"
+              (change)="toggleSelection(item)">
+            </mat-checkbox>
+          </div>
+          <div class="item-info">
+            <mat-card-title>{{ item.name }}</mat-card-title>
+            <mat-card-subtitle>{{ item.sku }} • {{ item.category }}</mat-card-subtitle>
+          </div>
+          <div class="severity-badge">
+            <mat-chip class="severity-chip" [class]="'severity-' + item.severity">
+              <mat-icon>{{ getSeverityIcon(item.severity) }}</mat-icon>
+              {{ item.severity | titlecase }}
+            </mat-chip>
+          </div>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="stock-info">
+            <div class="stock-row main-stock">
+              <span class="stock-label">Current Stock:</span>
+              <span class="stock-value" [class]="getStockValueClass(item.currentStock, item.reorderPoint)">
+                {{ item.currentStock }} {{ item.unit }}
+              </span>
+            </div>
+            
+            <div class="stock-row">
+              <span class="stock-label">Reorder Point:</span>
+              <span class="stock-value">{{ item.reorderPoint }} {{ item.unit }}</span>
+            </div>
+            
+            <div class="stock-row">
+              <span class="stock-label">Minimum Stock:</span>
+              <span class="stock-value">{{ item.minimumStock }} {{ item.unit }}</span>
+            </div>
+            
+            <div class="stock-row">
+              <span class="stock-label">Location:</span>
+              <span class="stock-value location">{{ item.location }}</span>
+            </div>
+          </div>
+          
+          <div class="progress-section">
+            <div class="progress-label">
+              <span>Stock Level</span>
+              <span class="progress-percentage">{{ getStockPercentage(item) }}%</span>
+            </div>
+            <mat-progress-bar 
+              [value]="getStockPercentage(item)"
+              [color]="getProgressColor(item)">
+            </mat-progress-bar>
+          </div>
+          
+          <div class="supplier-info" *ngIf="item.preferredSupplier">
+            <div class="info-row">
+              <mat-icon class="info-icon">business</mat-icon>
+              <div class="supplier-details">
+                <span class="supplier-name">{{ item.preferredSupplier }}</span>
+                <span class="supplier-lead">{{ item.leadTime }} days lead time</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="cost-info">
+            <div class="cost-row">
+              <span class="cost-label">Unit Cost:</span>
+              <span class="cost-value">{{ item.unitCost | currency }}</span>
+            </div>
+            <div class="cost-row">
+              <span class="cost-label">Reorder Cost:</span>
+              <span class="cost-value total-cost">{{ getReorderCost(item) | currency }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+        
+        <mat-card-actions>
+          <button mat-button (click)="createOrder(item)">
+            <mat-icon>add_shopping_cart</mat-icon>
+            Order
+          </button>
+          <button mat-button (click)="updateThreshold(item)">
+            <mat-icon>tune</mat-icon>
+            Threshold
+          </button>
+          <button mat-button (click)="viewHistory(item)">
+            <mat-icon>history</mat-icon>
+            History
+          </button>
+          <button mat-icon-button [matMenuTriggerFor]="itemMenu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #itemMenu="matMenu">
+            <button mat-menu-item (click)="adjustStock(item)">
+              <mat-icon>tune</mat-icon>
+              Adjust Stock
+            </button>
+            <button mat-menu-item (click)="changeSupplier(item)">
+              <mat-icon>swap_horiz</mat-icon>
+              Change Supplier
+            </button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="viewDetails(item)">
+              <mat-icon>visibility</mat-icon>
+              View Details
+            </button>
+          </mat-menu>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Table View -->
+  <div *ngIf="viewMode === 'table'" class="table-container">
+    <table mat-table [dataSource]="getFilteredItems()" class="low-stock-table" matSort>
+      
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox
+            [checked]="isAllSelected()"
+            [indeterminate]="selection.hasValue() && !isAllSelected()"
+            (change)="toggleAllRows()">
+          </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let item">
+          <mat-checkbox
+            [checked]="selection.isSelected(item)"
+            (change)="toggleSelection(item)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+      
+      <ng-container matColumnDef="item">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Item</th>
+        <td mat-cell *matCellDef="let item">
+          <div class="item-cell">
+            <div class="item-main">
+              <span class="item-name">{{ item.name }}</span>
+              <span class="item-sku">{{ item.sku }}</span>
+            </div>
+            <span class="item-category">{{ item.category }}</span>
+          </div>
+        </td>
+      </ng-container>
+      
+      <ng-container matColumnDef="severity">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Severity</th>
+        <td mat-cell *matCellDef="let item">
+          <mat-chip class="severity-chip" [class]="'severity-' + item.severity">
+            <mat-icon>{{ getSeverityIcon(item.severity) }}</mat-icon>
+            {{ item.severity | titlecase }}
+          </mat-chip>
+        </td>
+      </ng-container>
+      
+      <ng-container matColumnDef="currentStock">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Current Stock</th>
+        <td mat-cell *matCellDef="let item">
+          <div class="stock-cell">
+            <span class="stock-main" [class]="getStockValueClass(item.currentStock, item.reorderPoint)">
+              {{ item.currentStock }} {{ item.unit }}
+            </span>
+            <div class="stock-bar">
+              <mat-progress-bar 
+                [value]="getStockPercentage(item)"
+                [color]="getProgressColor(item)"
+                mode="determinate">
+              </mat-progress-bar>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+      
+      <ng-container matColumnDef="thresholds">
+        <th mat-header-cell *matHeaderCellDef>Thresholds</th>
+        <td mat-cell *matCellDef="let item">
+          <div class="thresholds-cell">
+            <div class="threshold-row">
+              <span class="threshold-label">Reorder:</span>
+              <span class="threshold-value">{{ item.reorderPoint }}</span>
+            </div>
+            <div class="threshold-row">
+              <span class="threshold-label">Minimum:</span>
+              <span class="threshold-value">{{ item.minimumStock }}</span>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+      
+      <ng-container matColumnDef="supplier">
+        <th mat-header-cell *matHeaderCellDef>Supplier</th>
+        <td mat-cell *matCellDef="let item">
+          <div class="supplier-cell" *ngIf="item.preferredSupplier">
+            <span class="supplier-name">{{ item.preferredSupplier }}</span>
+            <span class="lead-time">{{ item.leadTime }} days</span>
+          </div>
+          <span *ngIf="!item.preferredSupplier" class="no-supplier">No supplier</span>
+        </td>
+      </ng-container>
+      
+      <ng-container matColumnDef="cost">
+        <th mat-header-cell *matHeaderCellDef>Reorder Cost</th>
+        <td mat-cell *matCellDef="let item">
+          <span class="cost-value">{{ getReorderCost(item) | currency }}</span>
+        </td>
+      </ng-container>
+      
+      <ng-container matColumnDef="location">
+        <th mat-header-cell *matHeaderCellDef>Location</th>
+        <td mat-cell *matCellDef="let item">{{ item.location }}</td>
+      </ng-container>
+      
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let item">
+          <div class="table-actions">
+            <button mat-icon-button (click)="createOrder(item)" matTooltip="Create Order" class="order-btn">
+              <mat-icon>add_shopping_cart</mat-icon>
+            </button>
+            <button mat-icon-button (click)="updateThreshold(item)" matTooltip="Update Threshold">
+              <mat-icon>tune</mat-icon>
+            </button>
+            <button mat-icon-button (click)="viewHistory(item)" matTooltip="View History">
+              <mat-icon>history</mat-icon>
+            </button>
+            <button mat-icon-button [matMenuTriggerFor]="actionMenu" matTooltip="More">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #actionMenu="matMenu">
+              <button mat-menu-item (click)="adjustStock(item)">
+                <mat-icon>tune</mat-icon>
+                Adjust Stock
+              </button>
+              <button mat-menu-item (click)="changeSupplier(item)">
+                <mat-icon>swap_horiz</mat-icon>
+                Change Supplier
+              </button>
+              <mat-divider></mat-divider>
+              <button mat-menu-item (click)="viewDetails(item)">
+                <mat-icon>visibility</mat-icon>
+                View Details
+              </button>
+            </mat-menu>
+          </div>
+        </td>
+      </ng-container>
+      
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    
+    <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" 
+                   [pageSize]="25"
+                   showFirstLastButtons>
+    </mat-paginator>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="getFilteredItems().length === 0" class="empty-state">
+    <mat-icon>inventory</mat-icon>
+    <h3>No low stock items found</h3>
+    <p>All items are adequately stocked or try adjusting your filters</p>
+    <button mat-raised-button color="primary" (click)="clearFilters()">
+      <mat-icon>clear_all</mat-icon>
+      Clear Filters
+    </button>
+  </div>
+</div>

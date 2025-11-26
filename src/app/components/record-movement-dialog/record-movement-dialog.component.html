@@ -1,0 +1,218 @@
+<h2 mat-dialog-title>
+  <mat-icon>swap_horiz</mat-icon>
+  Record Stock Movement
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="movementForm" class="movement-form">
+    
+    <!-- Movement Type Selection -->
+    <div class="form-section">
+      <h3>Movement Type</h3>
+      <mat-button-toggle-group formControlName="type" class="movement-type-toggle" required>
+        <mat-button-toggle 
+          *ngFor="let type of movementTypes" 
+          [value]="type.value"
+          [class]="'toggle-' + type.value">
+          <mat-icon>{{ type.icon }}</mat-icon>
+          {{ type.label }}
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+      <mat-error *ngIf="movementForm.get('type')?.invalid && movementForm.get('type')?.touched">
+        Please select a movement type
+      </mat-error>
+    </div>
+
+    <!-- Item Selection -->
+    <div class="form-section">
+      <h3>Item Information</h3>
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Search Item</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput
+                 formControlName="itemSearch"
+                 placeholder="Search by name or SKU..."
+                 [matAutocomplete]="itemAuto">
+          <mat-autocomplete #itemAuto="matAutocomplete" [displayWith]="displayItem">
+            <mat-option *ngFor="let item of filteredItems | async" 
+                        [value]="item"
+                        (onSelectionChange)="selectItem(item)">
+              <div class="item-option">
+                <span class="item-name">{{ item.name }}</span>
+                <span class="item-sku">{{ item.sku }}</span>
+                <span class="item-stock">Stock: {{ item.currentStock }}</span>
+              </div>
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+      
+      <!-- Selected Item Display -->
+      <div *ngIf="selectedItem" class="selected-item">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>{{ selectedItem.name }}</mat-card-title>
+            <mat-card-subtitle>{{ selectedItem.sku }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="item-details">
+              <div class="detail-item">
+                <span class="label">Current Stock:</span>
+                <span class="value">{{ selectedItem.currentStock }} {{ selectedItem.unit }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Location:</span>
+                <span class="value">{{ selectedItem.location }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Unit Cost:</span>
+                <span class="value">{{ selectedItem.unitCost | currency }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Quantity and Location -->
+    <div class="form-section">
+      <h3>Movement Details</h3>
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Quantity</mat-label>
+          <input matInput
+                 type="number"
+                 formControlName="quantity"
+                 [placeholder]="getQuantityPlaceholder()"
+                 min="1">
+          <span matSuffix *ngIf="selectedItem">{{ selectedItem.unit }}</span>
+          <mat-error *ngIf="movementForm.get('quantity')?.invalid && movementForm.get('quantity')?.touched">
+            <span *ngIf="movementForm.get('quantity')?.errors?.['required']">Quantity is required</span>
+            <span *ngIf="movementForm.get('quantity')?.errors?.['min']">Quantity must be greater than 0</span>
+          </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" *ngIf="!isTransferType()">
+          <mat-label>Location</mat-label>
+          <mat-select formControlName="location">
+            <mat-option *ngFor="let location of locations" [value]="location">
+              {{ location }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="movementForm.get('location')?.invalid && movementForm.get('location')?.touched">
+            Please select a location
+          </mat-error>
+        </mat-form-field>
+      </div>
+      
+      <!-- Transfer Locations -->
+      <div *ngIf="isTransferType()" class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>From Location</mat-label>
+          <mat-select formControlName="fromLocation">
+            <mat-option *ngFor="let location of locations" [value]="location">
+              {{ location }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="movementForm.get('fromLocation')?.invalid && movementForm.get('fromLocation')?.touched">
+            Please select source location
+          </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>To Location</mat-label>
+          <mat-select formControlName="toLocation">
+            <mat-option *ngFor="let location of locations" [value]="location">
+              {{ location }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="movementForm.get('toLocation')?.invalid && movementForm.get('toLocation')?.touched">
+            Please select destination location
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Reference and Cost -->
+    <div class="form-section">
+      <h3>Additional Information</h3>
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Reference Number</mat-label>
+          <input matInput
+                 formControlName="reference"
+                 [placeholder]="getReferencePlaceholder()">
+          <mat-error *ngIf="movementForm.get('reference')?.invalid && movementForm.get('reference')?.touched">
+            Reference number is required
+          </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" *ngIf="showCostField()">
+          <mat-label>Cost Impact</mat-label>
+          <span matPrefix>$</span>
+          <input matInput
+                 type="number"
+                 formControlName="cost"
+                 placeholder="0.00"
+                 step="0.01"
+                 min="0">
+          <mat-error *ngIf="movementForm.get('cost')?.invalid && movementForm.get('cost')?.touched">
+            Please enter a valid cost
+          </mat-error>
+        </mat-form-field>
+      </div>
+      
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Reason / Notes</mat-label>
+          <textarea matInput
+                    formControlName="reason"
+                    rows="3"
+                    placeholder="Enter reason for this movement..."></textarea>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Impact Summary -->
+    <div *ngIf="selectedItem && movementForm.get('quantity')?.value" class="impact-summary">
+      <mat-card class="summary-card">
+        <mat-card-header>
+          <mat-card-title>Movement Impact</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="summary-row">
+            <span class="summary-label">Current Stock:</span>
+            <span class="summary-value current">{{ selectedItem.currentStock }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">{{ getImpactLabel() }}:</span>
+            <span class="summary-value" [class]="getImpactClass()">{{ getImpactValue() }}</span>
+          </div>
+          <div class="summary-row final">
+            <span class="summary-label">New Stock Level:</span>
+            <span class="summary-value" [class]="getNewStockClass()">{{ getNewStockLevel() }}</span>
+          </div>
+          <div *ngIf="getNewStockLevel() < 0" class="warning-message">
+            <mat-icon>warning</mat-icon>
+            Warning: This movement would result in negative stock!
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">
+    Cancel
+  </button>
+  <button mat-raised-button 
+          color="primary" 
+          (click)="onSave()"
+          [disabled]="!movementForm.valid || !selectedItem">
+    <mat-icon>save</mat-icon>
+    Record Movement
+  </button>
+</mat-dialog-actions>

@@ -13,6 +13,11 @@ import { AddItemDialogComponent } from './components/add-item-dialog/add-item-di
 import { CategoriesComponent } from './components/categories/categories.component';
 import { SuppliersComponent } from './components/suppliers/suppliers.component';
 import { OrdersComponent } from './components/orders/orders.component';
+import { StockMovementComponent } from './components/stock-movement/stock-movement.component';
+import { RecordMovementDialogComponent } from './components/record-movement-dialog/record-movement-dialog.component';
+import { ReportsComponent } from './components/reports/reports.component';
+import { LowStockAlertComponent } from './components/low-stock-alert/low-stock-alert.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +28,12 @@ import { OrdersComponent } from './components/orders/orders.component';
     AddItemDialogComponent,
     CategoriesComponent,
     SuppliersComponent,
-    OrdersComponent
+    OrdersComponent,
+    StockMovementComponent,
+    RecordMovementDialogComponent,
+    ReportsComponent,
+    LowStockAlertComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,
