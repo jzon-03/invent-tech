@@ -1,1 +1,122 @@
 /* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+html, body { 
+  height: 100%; 
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* Custom CSS Variables for Inventory Management System */
+:root {
+  --primary-color: #3f51b5;
+  --accent-color: #ff4081;
+  --warn-color: #f44336;
+  --success-color: #4caf50;
+  --sidebar-width: 250px;
+  --header-height: 64px;
+}
+
+/* Global utility classes */
+.full-width {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.margin-top {
+  margin-top: 16px;
+}
+
+.margin-bottom {
+  margin-bottom: 16px;
+}
+
+.padding {
+  padding: 16px;
+}
+
+/* Inventory specific styles */
+.inventory-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.inventory-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: var(--header-height);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.inventory-sidenav-container {
+  margin-top: var(--header-height);
+  height: calc(100vh - var(--header-height));
+}
+
+.inventory-sidenav {
+  width: var(--sidebar-width);
+}
+
+.inventory-content {
+  padding: 20px;
+  background-color: #fafafa;
+  min-height: calc(100vh - var(--header-height));
+}
+
+/* Card styles for inventory items */
+.inventory-card {
+  margin-bottom: 16px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.inventory-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Status indicators */
+.status-in-stock {
+  color: var(--success-color);
+  font-weight: 500;
+}
+
+.status-low-stock {
+  color: #ff9800;
+  font-weight: 500;
+}
+
+.status-out-of-stock {
+  color: var(--warn-color);
+  font-weight: 500;
+}
+
+/* Table customizations */
+.inventory-table {
+  width: 100%;
+  background-color: white;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.mat-mdc-header-row {
+  background-color: #f5f5f5;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 200px;
+  }
+  
+  .inventory-content {
+    padding: 16px;
+  }
+}

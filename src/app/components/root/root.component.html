@@ -1,0 +1,146 @@
+<div class="inventory-container">
+  <!-- Header/Toolbar -->
+  <mat-toolbar class="inventory-header" color="primary">
+    <button mat-icon-button (click)="toggleSidenav()" aria-label="Toggle navigation">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span>Inventory Management System</span>
+    <span class="spacer"></span>
+    <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="User menu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item>
+        <mat-icon>person</mat-icon>
+        <span>Profile</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon>settings</mat-icon>
+        <span>Settings</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item>
+        <mat-icon>exit_to_app</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </mat-toolbar>
+
+  <!-- Sidenav Container -->
+  <mat-sidenav-container class="inventory-sidenav-container">
+    <!-- Sidenav -->
+    <mat-sidenav #sidenav class="inventory-sidenav" mode="side" opened="true">
+      <mat-nav-list>
+        <!-- Dashboard -->
+        <a mat-list-item routerLink="/dashboard" routerLinkActive="active">
+          <mat-icon matListItemIcon>dashboard</mat-icon>
+          <span matListItemTitle>Dashboard</span>
+        </a>
+        
+        <!-- Inventory Items -->
+        <a mat-list-item routerLink="/inventory" routerLinkActive="active">
+          <mat-icon matListItemIcon>inventory</mat-icon>
+          <span matListItemTitle>Inventory Items</span>
+        </a>
+        
+        <!-- Categories -->
+        <a mat-list-item routerLink="/categories" routerLinkActive="active">
+          <mat-icon matListItemIcon>category</mat-icon>
+          <span matListItemTitle>Categories</span>
+        </a>
+        
+        <!-- Suppliers -->
+        <a mat-list-item routerLink="/suppliers" routerLinkActive="active">
+          <mat-icon matListItemIcon>business</mat-icon>
+          <span matListItemTitle>Suppliers</span>
+        </a>
+        
+        <!-- Orders -->
+        <a mat-list-item routerLink="/orders" routerLinkActive="active">
+          <mat-icon matListItemIcon>shopping_cart</mat-icon>
+          <span matListItemTitle>Orders</span>
+        </a>
+        
+        <!-- Stock Movement -->
+        <a mat-list-item routerLink="/stock-movement" routerLinkActive="active">
+          <mat-icon matListItemIcon>swap_horiz</mat-icon>
+          <span matListItemTitle>Stock Movement</span>
+        </a>
+        
+        <!-- Reports -->
+        <a mat-list-item routerLink="/reports" routerLinkActive="active">
+          <mat-icon matListItemIcon>analytics</mat-icon>
+          <span matListItemTitle>Reports</span>
+        </a>
+        
+        <mat-divider></mat-divider>
+        
+        <!-- Low Stock Alert -->
+        <a mat-list-item routerLink="/low-stock" routerLinkActive="active">
+          <mat-icon matListItemIcon color="warn">warning</mat-icon>
+          <span matListItemTitle>Low Stock Alert</span>
+          <mat-chip-set>
+            <mat-chip color="warn">5</mat-chip>
+          </mat-chip-set>
+        </a>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <!-- Main Content -->
+    <mat-sidenav-content class="inventory-content">
+      <!-- Content will be routed here -->
+      <router-outlet></router-outlet>
+      
+      <!-- Placeholder content for demonstration -->
+      <div *ngIf="showPlaceholder">
+        <div class="text-center margin-bottom">
+          <h2>Welcome to Inventory Management System</h2>
+          <p>Select an option from the navigation menu to get started.</p>
+        </div>
+        
+        <!-- Quick Stats Cards -->
+        <div class="stats-grid">
+          <mat-card class="inventory-card">
+            <mat-card-header>
+              <mat-icon mat-card-avatar color="primary">inventory</mat-icon>
+              <mat-card-title>Total Items</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <h2>1,247</h2>
+            </mat-card-content>
+          </mat-card>
+          
+          <mat-card class="inventory-card">
+            <mat-card-header>
+              <mat-icon mat-card-avatar color="accent">trending_down</mat-icon>
+              <mat-card-title>Low Stock Items</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <h2 class="status-low-stock">23</h2>
+            </mat-card-content>
+          </mat-card>
+          
+          <mat-card class="inventory-card">
+            <mat-card-header>
+              <mat-icon mat-card-avatar color="warn">remove_circle</mat-icon>
+              <mat-card-title>Out of Stock</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <h2 class="status-out-of-stock">5</h2>
+            </mat-card-content>
+          </mat-card>
+          
+          <mat-card class="inventory-card">
+            <mat-card-header>
+              <mat-icon mat-card-avatar style="color: #4caf50;">attach_money</mat-icon>
+              <mat-card-title>Total Value</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <h2>$125,670</h2>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

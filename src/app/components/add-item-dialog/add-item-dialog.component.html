@@ -1,0 +1,119 @@
+<h2 mat-dialog-title>Add New Inventory Item</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="itemForm" class="item-form">
+    <!-- Basic Information -->
+    <div class="form-section">
+      <h3>Basic Information</h3>
+      
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Item Name</mat-label>
+          <input matInput formControlName="name" placeholder="Enter item name" required>
+          <mat-error *ngIf="itemForm.get('name')?.hasError('required')">Item name is required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>SKU</mat-label>
+          <input matInput formControlName="sku" placeholder="Auto-generated" readonly>
+          <mat-hint>Automatically generated</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Category</mat-label>
+          <mat-select formControlName="category" required>
+            <mat-option value="Electronics">Electronics</mat-option>
+            <mat-option value="Clothing">Clothing</mat-option>
+            <mat-option value="Home & Garden">Home & Garden</mat-option>
+            <mat-option value="Sports">Sports</mat-option>
+            <mat-option value="Books">Books</mat-option>
+            <mat-option value="Toys">Toys</mat-option>
+          </mat-select>
+          <mat-error *ngIf="itemForm.get('category')?.hasError('required')">Category is required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="description" 
+                    placeholder="Enter item description" 
+                    rows="3" 
+                    maxlength="500"></textarea>
+          <mat-hint>{{itemForm.get('description')?.value?.length || 0}}/500</mat-hint>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Pricing & Stock -->
+    <div class="form-section">
+      <h3>Pricing & Stock</h3>
+      
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Price</mat-label>
+          <input matInput type="number" formControlName="price" 
+                 placeholder="0.00" min="0" step="0.01" required>
+          <span matTextPrefix>$&nbsp;</span>
+          <mat-error *ngIf="itemForm.get('price')?.hasError('required')">Price is required</mat-error>
+          <mat-error *ngIf="itemForm.get('price')?.hasError('min')">Price must be greater than 0</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Initial Stock</mat-label>
+          <input matInput type="number" formControlName="stock" 
+                 placeholder="0" min="0" required>
+          <mat-error *ngIf="itemForm.get('stock')?.hasError('required')">Stock is required</mat-error>
+          <mat-error *ngIf="itemForm.get('stock')?.hasError('min')">Stock cannot be negative</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Minimum Stock Level</mat-label>
+          <input matInput type="number" formControlName="minStock" 
+                 placeholder="0" min="0" required>
+          <mat-hint>Alert when stock falls below this level</mat-hint>
+          <mat-error *ngIf="itemForm.get('minStock')?.hasError('required')">Minimum stock is required</mat-error>
+        </mat-form-field>
+
+        <div class="stock-preview">
+          <div class="preview-item">
+            <span class="label">Stock Status:</span>
+            <mat-chip [class]="getPreviewStatusClass()">
+              {{getPreviewStatusText()}}
+            </mat-chip>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Add Options -->
+    <div class="form-section">
+      <h3>Quick Add Options</h3>
+      <div class="quick-options">
+        <button type="button" mat-stroked-button (click)="fillSampleData('electronics')">
+          Sample Electronics Item
+        </button>
+        <button type="button" mat-stroked-button (click)="fillSampleData('clothing')">
+          Sample Clothing Item
+        </button>
+        <button type="button" mat-stroked-button (click)="fillSampleData('random')">
+          Random Item
+        </button>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" 
+          (click)="onSave()" 
+          [disabled]="!itemForm.valid">
+    <mat-icon>add</mat-icon>
+    Add Item
+  </button>
+</mat-dialog-actions>
