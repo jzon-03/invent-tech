@@ -29,7 +29,7 @@
   <!-- Sidenav Container -->
   <mat-sidenav-container class="inventory-sidenav-container">
     <!-- Sidenav -->
-    <mat-sidenav #sidenav class="inventory-sidenav" mode="side" opened="true">
+    <mat-sidenav #sidenav class="inventory-sidenav" [mode]="sidenavMode" [opened]="sidenavOpened">
       <mat-nav-list>
         <!-- Dashboard -->
         <a mat-list-item routerLink="/dashboard" routerLinkActive="active">
