@@ -36,6 +36,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatTreeModule } from '@angular/material/tree';
+import { LayoutModule } from '@angular/cdk/layout';
 
 const MaterialComponents = [
   MatButtonModule,
@@ -72,7 +73,8 @@ const MaterialComponents = [
   MatStepperModule,
   MatDividerModule,
   MatGridListModule,
-  MatTreeModule
+  MatTreeModule,
+  LayoutModule
 ];
 
 @NgModule({
